@@ -13,3 +13,17 @@ fun Fernando2(modifier: Modifier = Modifier) {
         modifier = modifier
     )
 }
+
+data class Conversa(
+    val id: Int,
+    val nome: String,
+    val mensagens: List<String>,
+    var fixada: Boolean = false
+)
+
+val conversas = mutableListOf<Conversa>()
+
+fun fixarConversa(conversaId: Int) {
+    val conversa = conversas.find { it.id == conversaId }
+    conversa?.fixada = true
+}
