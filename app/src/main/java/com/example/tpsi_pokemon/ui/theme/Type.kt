@@ -1,4 +1,4 @@
-package com.example.scancards.ui.theme
+package com.example.tpsi_pokemon.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
