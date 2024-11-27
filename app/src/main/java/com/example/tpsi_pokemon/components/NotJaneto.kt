@@ -7,9 +7,9 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun Professor(modifier: Modifier = Modifier) {
+fun NotJaneto(modifier: Modifier = Modifier) {
     Text(
-        text = "Janeto Matias",
+        text = "NotJaneto Matias",
         modifier = modifier
     )
 }
