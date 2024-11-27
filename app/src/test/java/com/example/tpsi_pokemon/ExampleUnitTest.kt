@@ -1,4 +1,4 @@
-package com.example.colecoes_v2
+package com.example.tpsi_pokemon
 
 import org.junit.Test
 

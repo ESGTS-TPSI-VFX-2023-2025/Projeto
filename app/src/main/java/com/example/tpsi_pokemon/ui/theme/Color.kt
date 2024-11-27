@@ -1,4 +1,4 @@
-package com.example.colecoes_v2.ui.theme
+package com.example.tpsi_pokemon.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

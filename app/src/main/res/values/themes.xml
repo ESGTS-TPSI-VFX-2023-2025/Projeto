@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ScanCards" parent="android:Theme.Material.Light.NoActionBar" />
-
-    <style name="Theme.Colecoes" parent="android:Theme.Material.Light.NoActionBar" />
-
-    <style name="Theme.Colecoes_v2" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.TPSI_Pokemon" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
