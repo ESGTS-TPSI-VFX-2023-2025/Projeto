@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import cars.com.example.myapp_login.R
+import com.google.firebase.auth.FirebaseAuth
 
 val arialFontFamilys = FontFamily(Font(cars.com.example.myapp_login.R.font.arial))
-
 
 @Composable
 fun RegistoScreen(navController: NavHostController) {
@@ -141,15 +141,24 @@ fun RegistoScreen(navController: NavHostController) {
 
         Button(
             onClick = {
-                if (passwordState.value.isNotEmpty() && repeatPasswordState.value.isNotEmpty()) {
+                if (emailState.value.isNotEmpty() && passwordState.value.isNotEmpty() && repeatPasswordState.value.isNotEmpty()) {
                     if (passwordState.value == repeatPasswordState.value) {
-                        confirmationMessage.value = "Registro bem-sucedido! Redirecionando..."
-                        isError.value = false
-                        navController.navigate("login") {
-                            popUpTo("registo") { inclusive = true }
-                        }
+                        val auth = FirebaseAuth.getInstance()
+                        auth.createUserWithEmailAndPassword(emailState.value, passwordState.value)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    confirmationMessage.value = "Usuário registrado com sucesso!"
+                                    isError.value = false
+                                    navController.navigate("login_screen") {
+                                        popUpTo("register_screen") { inclusive = true }
+                                    }
+                                } else {
+                                    confirmationMessage.value = "Erro: ${task.exception?.message}"
+                                    isError.value = true
+                                }
+                            }
                     } else {
-                        confirmationMessage.value = "As palavras-passe não correspondem!"
+                        confirmationMessage.value = "As palavras-passe não coincidem!"
                         isError.value = true
                     }
                 } else {

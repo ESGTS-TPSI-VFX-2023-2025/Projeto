@@ -56,7 +56,6 @@ fun CardDisplayScreen(navController: NavController) {
 
             PokeballButtonWithActions(
                 onScanClick = { navController.navigate("scan_screen") },
-                onMarketplaceClick = { navController.navigate("marketplace_screen") },
                 onYellowClick = { /* Ação para botão amarelo */ },
                 onPurpleClick = { /* Ação para botão roxo */ }
             )
@@ -78,7 +77,6 @@ fun CardDisplayScreen(navController: NavController) {
 @Composable
 fun PokeballButtonWithActions(
     onScanClick: () -> Unit,
-    onMarketplaceClick: () -> Unit,
     onYellowClick: () -> Unit,
     onPurpleClick: () -> Unit
 ) {
@@ -150,16 +148,6 @@ fun PokeballButtonWithActions(
             ) {
                 Text(text = "Scan", color = Color.White)
             }
-            Button(
-                onClick = onMarketplaceClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp)
-            ) {
-                Text(text = "Marketplace", color = Color.White)
-            }
-
         }
     }
 }
@@ -178,12 +166,6 @@ fun OptionsDialog(onDismiss: () -> Unit, navController: NavController) {
                     onDismiss()
                 }) {
                     Text(text = "Scan", style = MaterialTheme.typography.bodyLarge)
-                }
-                TextButton(onClick = {
-                    navController.navigate("marketplace_screen")
-                    onDismiss()
-                }) {
-                    Text(text = "Marketplace", style = MaterialTheme.typography.bodyLarge)
                 }
             }
         },

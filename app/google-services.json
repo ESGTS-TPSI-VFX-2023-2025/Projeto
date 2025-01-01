@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "190121895443",
+    "project_id": "myapp-login-bb462",
+    "storage_bucket": "myapp-login-bb462.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190121895443:android:5755254b14d66ca78d01e6",
+        "android_client_info": {
+          "package_name": "cars.com.example.myapp_login"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoMRod-7Whyu5F6BdgudLl5RVAjZVPRnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
