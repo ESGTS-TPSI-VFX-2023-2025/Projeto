@@ -1,22 +1,16 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.example.tpsi_pokemon.components.scan
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,16 +20,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.Manifest
-import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.util.Log
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.tpsi_pokemon.R
 import com.example.tpsi_pokemon.ui.theme.TPSI_PokemonTheme
 
 class Camera : ComponentActivity() {
+    private lateinit var controller: LifecycleCameraController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!hasRequiredPermissions()) {
@@ -44,13 +55,258 @@ class Camera : ComponentActivity() {
             )
         }
         enableEdgeToEdge()
+
+        // Initialize camera controller here to avoid passing it around
+        controller = LifecycleCameraController(applicationContext).apply {
+            setEnabledUseCases(LifecycleCameraController.IMAGE_CAPTURE)
+        }
+
         setContent {
-            TPSI_PokemonTheme {
-                Page()
+           TPSI_PokemonTheme{
+                AppNavHost(controller)
+
             }
         }
     }
 
+    @Composable
+    fun AppNavHost(controller: LifecycleCameraController) {
+        val navController = rememberNavController()
+        val viewModel: CameraViewModel = viewModel()
+
+        NavHost(navController = navController, startDestination = "camera") {
+            composable("camera") {
+                CameraScreen(viewModel, navController)
+            }
+            composable("details") {
+                val bitmap by viewModel.bitmap.collectAsState()
+                if (bitmap != null) {
+                    DetalhesScreen(viewModel,bitmap!!, navController)
+                } else {
+                    Text(
+                        "Image is not ready yet. Please try again.",
+                        modifier = Modifier.fillMaxSize(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            composable("showdetails") {
+                val bitmap by viewModel.bitmap.collectAsState()
+                if (bitmap != null) {
+                    ShowDetalhesScreen(bitmap!!, navController)
+                } else {
+                    Text(
+                        "Image is not ready yet. Please try again.",
+                        modifier = Modifier.fillMaxSize(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            composable("popup") {
+                POPUPAviso(navController)
+            }
+        }
+    }
+
+
+    @Composable
+    fun CameraScreen(viewModel: CameraViewModel,navController: NavController){
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TopBar(navController, "main_menu")
+            MiddleSection(controller)
+            BottomSection(viewModel,navController)
+        }
+    }
+
+    @Composable
+    fun ShowDetalhesScreen(capturedBitmap: Bitmap, navController: NavController) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TopBar(navController, "details")
+            MiddleSection3(capturedBitmap)
+            Details()
+            BottomSection3(navController)
+        }
+    }
+
+    @Composable
+    fun DetalhesScreen(viewModel: CameraViewModel,capturedBitmap: Bitmap, navController: NavController) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            TopBar(navController, "camera")
+            HorizontalScrollWithAngledImages(capturedBitmap)
+            MoreDetails()
+            BottomSection2(viewModel,capturedBitmap, navController)
+        }
+    }
+
+    fun takePhoto(
+        viewModel: CameraViewModel,
+        navController: NavController
+
+    ) {
+        controller.takePicture(
+            ContextCompat.getMainExecutor(applicationContext),
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+
+                    val matrix = Matrix().apply {
+                        postRotate(image.imageInfo.rotationDegrees.toFloat())
+                    }
+                    val rotatedBitmap = Bitmap.createBitmap(
+                        image.toBitmap(),
+                        0,
+                        0,
+                        image.width,
+                        image.height,
+                        matrix,
+                        true
+                    )
+
+                    viewModel.onTakePhoto(rotatedBitmap)
+                    navController.navigate("details")
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                    Log.e("Camera", "Couldn't take photo: ", exception)
+                }
+            }
+        )
+    }
+
+    @Composable
+    fun BottomSection(viewModel: CameraViewModel, navController: NavController) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .paddingFromBaseline(bottom = 150.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Button(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .width(200.dp)
+                    .height(50.dp),
+                onClick = {
+                    takePhoto(viewModel, navController) // Trigger photo capture
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF009BEB)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = "SCAN",
+                    fontSize = TextUnit(20.05f, TextUnitType.Sp),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+    }
+
+
+    @Composable
+    fun MiddleSection(controller: LifecycleCameraController) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .paddingFromBaseline(top = 600.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .size(300.dp, 150.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Left blue corner
+                Row {
+                    Row(
+                        modifier = Modifier
+                            .size(5.dp, 30.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                    Row(
+                        modifier = Modifier
+                            .size(30.dp, 5.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                }
+                // Right blue corner
+                Row {
+                    Row(
+                        modifier = Modifier
+                            .size(30.dp, 5.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                    Row(
+                        modifier = Modifier
+                            .size(5.dp, 30.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                }
+            }
+
+            Row(
+                modifier = Modifier.size(300.dp, 160.dp), // Fixed height and width for the row
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.size(35.dp, 160.dp)) {} // Empty spacer on the left
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .size(230.dp, 160.dp) // Camera section dimensions
+                        .background(color = Color(0xFF009BEB)) // Blue background for camera section
+                ) {
+                    CameraPreview(
+                        controller = controller,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                Column(modifier = Modifier.size(35.dp, 160.dp)) {} // Empty spacer on the right
+            }
+
+            Row(
+                modifier = Modifier
+                    .size(300.dp, 100.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Row(
+                        modifier = Modifier
+                            .size(5.dp, 30.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                    Row(
+                        modifier = Modifier
+                            .size(30.dp, 5.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                }
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Row(
+                        modifier = Modifier
+                            .size(30.dp, 5.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                    Row(
+                        modifier = Modifier
+                            .size(5.dp, 30.dp)
+                            .background(color = Color(0xFF009BEB))
+                    ) {}
+                }
+            }
+        }
+    }
     private fun hasRequiredPermissions(): Boolean {
         return CAMERAX_PERMISSIONS.all {
             ContextCompat.checkSelfPermission(
@@ -68,178 +324,25 @@ class Camera : ComponentActivity() {
 }
 
 @Composable
-fun TopBar() {
-    // You can implement a top bar here if needed
-}
-
-@Composable
-fun MiddleSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(500.dp)
-            .paddingFromBaseline(top = 600.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Add the UI elements of the middle section (camera preview, etc.)
-        // Top row of blue bars
-        Row(
-            modifier = Modifier
-                .size(300.dp, 150.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Left blue corner
-            Row {
-                Row(
-                    modifier = Modifier
-                        .size(5.dp, 30.dp)
-                        .background(color = Color(0xFF009BEB))
-
-                ) {}
-                Row(
-                    modifier = Modifier
-                        .size(30.dp, 5.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-            }
-            // Right blue corner
-            Row {
-                Row(
-                    modifier = Modifier
-                        .size(30.dp, 5.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-                Row(
-                    modifier = Modifier
-                        .size(5.dp, 30.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-            }
-        }
-
-        // Middle camera section
-        Row(
-            modifier = Modifier.size(300.dp, 160.dp), // Fixed height and width for the row
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Nested columns for centering
-            Column(modifier = Modifier.size(35.dp, 160.dp)) {} // Empty spacer on the left
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .size(230.dp, 160.dp) // Camera section dimensions
-                    .background(color = Color(0xFF009BEB)) // Blue background for camera section
-            ) {
-                // Camera preview or content goes here
-                val context = LocalContext.current
-                val controller = remember {
-                    LifecycleCameraController(context).apply {
-                        setEnabledUseCases(
-                            CameraController.IMAGE_CAPTURE
-                        )
-                    }
-                }
-                CameraPreview(
-                    controller = controller,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
-            }
-            Column(modifier = Modifier.size(35.dp, 160.dp)) {} // Empty spacer on the right
-        }
-
-        // Bottom row of blue bars
-        Row(
-            modifier = Modifier
-                .size(300.dp, 100.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            // Left blue corner
-            Row(verticalAlignment = Alignment.Bottom
-            ) {
-                Row(
-                    modifier = Modifier
-                        .size(5.dp, 30.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-                Row(
-                    modifier = Modifier
-                        .size(30.dp, 5.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-            }
-            // Right blue corner
-            Row(verticalAlignment = Alignment.Bottom) {
-                Row(
-                    modifier = Modifier
-                        .size(30.dp, 5.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-                Row(
-                    modifier = Modifier
-                        .size(5.dp, 30.dp)
-                        .background(color = Color(0xFF009BEB))
-                ) {}
-            }
-        }
-    }
-}
-
-
-@Composable
-fun BottomSection() {
-    val context = LocalContext.current
-
+fun TopBar(navController: NavController, string: String) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
-            .paddingFromBaseline(bottom = 150.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom
+            .fillMaxWidth()
+            .padding(top = 16.dp)
     ) {
-        Button(
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .width(200.dp)
-                .height(50.dp),
+        IconButton(
             onClick = {
-                // Launch Detalhes Activity
-                val intent = Intent(context, Detalhes::class.java)
-                context.startActivity(intent)
+                navController.navigate(string)
             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF009BEB)
-            ),
-            shape = RoundedCornerShape(12.dp)
+            modifier = Modifier
+                .padding(start = 8.dp)
         ) {
-            Text(
-                text = "SCAN",
-                fontSize = TextUnit(20.05f, TextUnitType.Sp),
-                fontWeight = FontWeight.Bold
+            Icon(
+                painter = painterResource(id = R.drawable.left),
+                contentDescription = "Back",
+                tint = Color.Black,
+                modifier = Modifier.size(30.dp)
             )
         }
-    }
-}
-
-@Composable
-fun Background() {
-    Canvas(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xfff4f9fb))
-    ) {
-        // Draw any background elements if needed
-    }
-}
-
-@Preview
-@Composable
-fun Page() {
-    Background()
-    Column {
-        TopBar()
-        MiddleSection()
-        BottomSection()
     }
 }
