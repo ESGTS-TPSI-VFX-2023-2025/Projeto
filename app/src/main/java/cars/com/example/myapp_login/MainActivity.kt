@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         val auth = FirebaseAuth.getInstance()
 
-        // Criar um novo usuário no Firebase
+
         val email = "alexfelipe@gmail.com"
         val password = "alex123"
 

@@ -55,9 +55,9 @@ fun CardDisplayScreen(navController: NavController) {
             Spacer(modifier = Modifier.weight(1f))
 
             PokeballButtonWithActions(
-                onScanClick = { navController.navigate("scan_screen") },
-                onYellowClick = { /* Ação para botão amarelo */ },
-                onPurpleClick = { /* Ação para botão roxo */ }
+                onScanClick = { navController.navigate("camera") },
+                onChatClick = { navController.navigate("conversas") },
+                onColecoesClick = { navController.navigate("colecoes") }
             )
 
             if (showDialog) {
@@ -77,8 +77,8 @@ fun CardDisplayScreen(navController: NavController) {
 @Composable
 fun PokeballButtonWithActions(
     onScanClick: () -> Unit,
-    onYellowClick: () -> Unit,
-    onPurpleClick: () -> Unit
+    onChatClick: () -> Unit,
+    onColecoesClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -113,7 +113,7 @@ fun PokeballButtonWithActions(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(
-                onClick = onYellowClick,
+                onClick = onChatClick,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),
                 modifier = Modifier
                     .weight(1f)
@@ -122,7 +122,7 @@ fun PokeballButtonWithActions(
                 Text(text = "Chat", color = Color.Black)
             }
             Button(
-                onClick = onPurpleClick,
+                onClick = onColecoesClick,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF800080)),
                 modifier = Modifier
                     .weight(1f)
