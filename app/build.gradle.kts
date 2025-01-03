@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+<<<<<<< HEAD
     id("com.google.gms.google-services")
 }
 
@@ -12,6 +13,17 @@ android {
     defaultConfig {
         applicationId = "cars.com.example.myapp_login"
         minSdk = 23
+=======
+}
+
+android {
+    namespace = "com.example.tpsi_pokemon"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "com.example.tpsi_pokemon"
+        minSdk = 24
+>>>>>>> main
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -50,7 +62,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+<<<<<<< HEAD
     implementation(libs.androidx.navigation.compose)
+=======
+>>>>>>> main
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,8 +73,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+<<<<<<< HEAD
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-analytics")
 }
+=======
+}
+>>>>>>> main
