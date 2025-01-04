@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import cars.com.example.myapp_login.R
 import com.google.firebase.auth.FirebaseAuth
 
-val arialFontFamilys = FontFamily(Font(cars.com.example.myapp_login.R.font.arial))
+val arialFontFamily1 = FontFamily(Font(R.font.arial))
 
 @Composable
 fun RegistoScreen(navController: NavHostController) {
@@ -40,6 +40,7 @@ fun RegistoScreen(navController: NavHostController) {
     val repeatPasswordState = remember { mutableStateOf("") }
     val confirmationMessage = remember { mutableStateOf("") }
     val isError = remember { mutableStateOf(false) }
+    val auth = FirebaseAuth.getInstance()
 
     Column(
         modifier = Modifier
@@ -53,7 +54,7 @@ fun RegistoScreen(navController: NavHostController) {
             text = "Pokedex",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            style = TextStyle(fontFamily = arialFontFamily, color = Color(0xFF16b4ff)),
+            style = TextStyle(fontFamily = arialFontFamily1, color = Color(0xFF16b4ff)),
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
         )
@@ -77,7 +78,7 @@ fun RegistoScreen(navController: NavHostController) {
         OutlinedTextField(
             value = nameState.value,
             onValueChange = { nameState.value = it },
-            label = { Text("Nome", style = TextStyle(fontFamily = arialFontFamily)) },
+            label = { Text("Nome  ", style = TextStyle(fontFamily = arialFontFamily)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 22.dp),
@@ -143,7 +144,6 @@ fun RegistoScreen(navController: NavHostController) {
             onClick = {
                 if (emailState.value.isNotEmpty() && passwordState.value.isNotEmpty() && repeatPasswordState.value.isNotEmpty()) {
                     if (passwordState.value == repeatPasswordState.value) {
-                        val auth = FirebaseAuth.getInstance()
                         auth.createUserWithEmailAndPassword(emailState.value, passwordState.value)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {

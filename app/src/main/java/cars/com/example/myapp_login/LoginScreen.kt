@@ -29,9 +29,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.colorResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import android.util.Patterns
 
 val arialFontFamily = FontFamily(Font(R.font.arial))
 
@@ -39,6 +40,24 @@ val arialFontFamily = FontFamily(Font(R.font.arial))
 fun LoginScreen(navController: NavController) {
     val usernameState = remember { mutableStateOf("") }
     val passwordState = remember { mutableStateOf("") }
+    val errorMessage = remember { mutableStateOf("") }  // Variável para armazenar a mensagem de erro
+    val auth = FirebaseAuth.getInstance()
+
+
+    fun getErrorMessage(errorCode: String?): String {
+        return when (errorCode) {
+            "ERROR_INVALID_EMAIL" -> "Nome / E-mail inválido"
+            "ERROR_WRONG_PASSWORD" -> "A senha está incorreta."
+            "ERROR_USER_NOT_FOUND" -> "Nome / E-mail não encontrado."
+            "ERROR_NETWORK_REQUEST_FAILED" -> "Falha na conexão de rede."
+            else -> "Nome/senha invalidos"
+        }
+    }
+
+    // Função para verificar se o e-mail é válido
+    fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
 
     Column(
         modifier = Modifier
@@ -51,10 +70,9 @@ fun LoginScreen(navController: NavController) {
             text = "Pokedex",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            style = TextStyle(fontFamily = arialFontFamily, color = colorResource(id = R.color.azul_normal)),
+            style = TextStyle(fontFamily = arialFontFamily, color = Color(0xFF16b4ff)),
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
-
         )
 
         Image(
@@ -66,7 +84,7 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = usernameState.value,
             onValueChange = { usernameState.value = it },
-            label = { Text("Nome/E-mail", style = TextStyle(fontFamily = arialFontFamily)) },
+            label = { Text("Nome / E-mail", style = TextStyle(fontFamily = arialFontFamily)) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF16b4ff),
@@ -85,6 +103,18 @@ fun LoginScreen(navController: NavController) {
             )
         )
 
+        // Mostrar a mensagem de erro caso exista
+        if (errorMessage.value.isNotEmpty()) {
+            Text(
+                text = errorMessage.value,
+                color = Color.Red,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                style = TextStyle(fontFamily = arialFontFamily),
+                modifier = Modifier.padding(top = 10.dp)
+            )
+        }
+
         Text(
             text = "Esqueceste-te da palavra-passe?",
             style = TextStyle(
@@ -93,7 +123,7 @@ fun LoginScreen(navController: NavController) {
                 textDecoration = TextDecoration.Underline
             ),
             modifier = Modifier
-                .clickable { navController.navigate("recover_screen") }
+                .clickable { navController.navigate("RecPass") }
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
             fontSize = 14.sp
@@ -102,7 +132,21 @@ fun LoginScreen(navController: NavController) {
         Button(
             onClick = {
                 if (usernameState.value.isNotEmpty() && passwordState.value.isNotEmpty()) {
-                    navController.navigate("main_menu")
+                    if (!isValidEmail(usernameState.value)) {
+                        errorMessage.value = "O e-mail fornecido não está no formato correto."
+                    } else {
+                        auth.signInWithEmailAndPassword(usernameState.value, passwordState.value)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    navController.navigate("main_menu") // Redireciona para a tela principal
+                                } else {
+                                    // Tratar erro de autenticação e mostrar a mensagem em português
+                                    errorMessage.value = getErrorMessage(task.exception?.message)
+                                }
+                            }
+                    }
+                } else {
+                    errorMessage.value = "Por favor, preencha todos os campos."
                 }
             },
             modifier = Modifier.fillMaxWidth(0.5f),

@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import cars.com.example.myapp_login.R
 
 val arialFontFamily = FontFamily(Font(R.font.arial))
@@ -43,6 +44,7 @@ fun RecuperarPassScreen(navController: NavHostController) {
     val repeatPasswordState = remember { mutableStateOf("") }
     val confirmationMessage = remember { mutableStateOf("") }
     val isError = remember { mutableStateOf(false) }
+    val auth = FirebaseAuth.getInstance()
 
     Column(
         modifier = Modifier
@@ -114,10 +116,42 @@ fun RecuperarPassScreen(navController: NavHostController) {
 
         Button(
             onClick = {
-                if (newPasswordState.value.isNotEmpty() && repeatPasswordState.value.isNotEmpty()) {
+                if (emailState.value.isNotEmpty() && newPasswordState.value.isNotEmpty() && repeatPasswordState.value.isNotEmpty()) {
                     if (newPasswordState.value == repeatPasswordState.value) {
-                        confirmationMessage.value = "Palavra-passe alterada com sucesso!"
-                        isError.value = false
+                        val email = emailState.value
+                        val newPassword = newPasswordState.value
+
+
+                        val user = auth.currentUser
+                        if (user != null && user.email == email) {
+
+                            user.updatePassword(newPassword)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        confirmationMessage.value = "Palavra-passe alterada com sucesso!"
+                                        isError.value = false
+
+
+                                        auth.signInWithEmailAndPassword(email, newPassword)
+                                            .addOnCompleteListener { loginTask ->
+                                                if (loginTask.isSuccessful) {
+                                                    // Login bem-sucedido
+                                                    navController.navigate("login_screen")
+                                                } else {
+                                                    confirmationMessage.value = "Erro ao fazer login com a nova senha!"
+                                                    isError.value = true
+                                                }
+                                            }
+
+                                    } else {
+                                        confirmationMessage.value = "Erro ao alterar a palavra-passe!"
+                                        isError.value = true
+                                    }
+                                }
+                        } else {
+                            confirmationMessage.value = "Nome / E-mail não encontrado !"
+                            isError.value = true
+                        }
                     } else {
                         confirmationMessage.value = "As palavras-passe não coincidem!"
                         isError.value = true
@@ -133,14 +167,13 @@ fun RecuperarPassScreen(navController: NavHostController) {
             )
         ) {
             Text(
-                text = "Recuperar palavra-passe",
+                text = "Alterar palavra-passe",
                 style = TextStyle(fontFamily = arialFontFamily, color = Color.White)
             )
         }
 
         Button(
-            onClick = { navController.popBackStack()
-            },
+            onClick = { navController.popBackStack() },
             modifier = Modifier.fillMaxWidth(0.9f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFB0BEC5),

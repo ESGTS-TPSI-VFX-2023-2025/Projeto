@@ -29,18 +29,6 @@ class MainActivity : ComponentActivity() {
         val auth = FirebaseAuth.getInstance()
 
 
-        val email = "alexfelipe@gmail.com"
-        val password = "alex123"
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val newUser = auth.currentUser
-                    Log.i("MainActivity", "Usuário criado com sucesso: ${newUser?.email}")
-                } else {
-                    Log.e("MainActivity", "Erro ao criar usuário: ${task.exception?.message}")
-                }
-            }
 
         setContent {
             Myapp_loginTheme {
@@ -71,7 +59,7 @@ fun AppNavigator() {
             RegistoScreen(navController)
         }
 
-        composable("recover_screen") {
+        composable("RecPass") {
             RecuperarPassScreen(navController)
         }
 
