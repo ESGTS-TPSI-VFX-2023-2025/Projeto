@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+<<<<<<< HEAD
     <style name="Theme.Myapp_login" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
+=======
+    <style name="Theme.TPSI_Pokemon" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
+>>>>>>> main

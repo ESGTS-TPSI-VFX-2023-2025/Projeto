@@ -19,6 +19,11 @@ dependencyResolutionManagement {
     }
 }
 
+<<<<<<< HEAD
 rootProject.name = "myapp_login"
 include(":app")
  
+=======
+rootProject.name = "TPSI_Pokemon"
+include(":app")
+>>>>>>> main
