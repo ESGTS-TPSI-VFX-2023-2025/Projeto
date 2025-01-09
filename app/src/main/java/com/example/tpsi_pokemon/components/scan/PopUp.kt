@@ -39,7 +39,7 @@ fun POPUPAviso(navController: NavController) {
             onDismiss = {
                 navController.navigate("login_screen")
             },
-            onLogin = { navController.navigate("") },
+            onLogin = { navController.navigate("home/scan") },
             Aviso = "Aviso",
             Msg = "Já iniciou sessão?",
             RedButton = "Não",

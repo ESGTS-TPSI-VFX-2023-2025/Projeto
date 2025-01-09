@@ -20,7 +20,7 @@
         android:theme="@style/Theme.TPSI_Pokemon"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".components.scan.Camera"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.TPSI_Pokemon">
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".components.scan.Camera"/>
+        <activity android:name=".MainActivity"/>
 
     </application>
 
