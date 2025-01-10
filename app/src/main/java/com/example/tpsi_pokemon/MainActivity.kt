@@ -11,6 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.tpsi_pokemon.components.HomeScreen
+import com.example.tpsi_pokemon.components.MainScreen
+import com.example.tpsi_pokemon.components.UserListScreen
+import com.example.tpsi_pokemon.components.VerCartasScreen
+import com.example.tpsi_pokemon.components.VerColecoesScreen
 import com.example.tpsi_pokemon.ui.theme.TPSI_PokemonTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,11 +27,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TPSI_PokemonTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                // Criação do NavController para navegação
+                val navController = rememberNavController()
+
+                // Definição do NavHost para a navegação
+                NavHost(navController = navController, startDestination = "pesquisa") {
+                    composable("home") {
+                        HomeScreen(navController = navController)
+                    }
+                    composable("vercolecoes") {
+                        VerColecoesScreen(navController = navController)
+                    }
+                    composable("pesquisa") {
+                        MainScreen(navController = navController)
+                    }
+                    composable("userlist") {
+                        UserListScreen(navController = navController)
+                    }
+                    composable("vercartas/{nomeColecao}") { backStackEntry ->
+                        val nomeColecao = backStackEntry.arguments?.getString("nomeColecao") ?: ""
+                        VerCartasScreen(navController, nomeColecao)
+                    }
                 }
             }
         }
