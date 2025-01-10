@@ -129,12 +129,14 @@ class Camera : ComponentActivity() {
                                 "Ditto",
                                 "pop-menu-Personalizadas",
                                 "entra-colecao"
+
                             )
                         }
                     }
 
                 }
             }
+
             composable("criar_colecao") {
                 ChamaCriarColecao(navController = navController)
             }

@@ -378,7 +378,6 @@ fun PesquisarBar(){
     }
 }
 
-
 @Composable
 fun Colecao(navController: NavController,name: String = "Nova Coleção",routeMenu: String,routeEntra : String) {
     Surface {
@@ -465,74 +464,6 @@ fun MenuEscolha(navController: NavController, color1 : Color, color2: Color){
                 textAlign = TextAlign.Center,
 
                 )
-        }
-    }
-}
-
-//@Preview
-@Composable
-fun SubMenu(){
-    Column(modifier = Modifier
-        .border(2.dp, Color.Black, RoundedCornerShape(20.dp))
-        .clip(RoundedCornerShape(20.dp))
-        .height(90.dp)
-        .width(220.dp)
-        .background(color = Color(0xFF009BEB))
-
-    ){
-        //Primeira opção "Criar Coleção"
-
-        Row(modifier = Modifier
-            .border(2.dp, Color.Black)
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .weight(1f),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Image(
-                painter = painterResource(id = R.drawable.botao_adicionar),
-                contentDescription = "Opções",
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier
-                    .padding(start = 19.dp)
-                    .fillMaxHeight()
-            )
-
-
-            Text(
-                text = "Criar Coleção",
-                color = Color.Black,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        //Segunda opção "Pesquisar"
-        Row(modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .weight(1f),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Image(
-                painter = painterResource(id = R.drawable.lupa),
-                contentDescription = "Opções",
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier
-                    .padding(start = 19.dp)
-                    .fillMaxHeight()
-            )
-
-            Text(
-                text = "Pesquisar",
-                color = Color.Black,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
         }
     }
 }
@@ -1059,7 +990,7 @@ fun LinhaPreta(){
 }
 
 @Composable
-fun BotaoMaiorQuadrado(name: String = "Usar Scan"){
+fun BotaoMaiorQuadrado(name: String = "Confirmar"){
     Row(modifier = Modifier
         .padding(start = 20.dp, top = 120.dp)
         .border(1.dp, Color.Black, RoundedCornerShape(10.dp)),
@@ -1084,9 +1015,9 @@ fun BotaoMaiorQuadrado(name: String = "Usar Scan"){
     }
 }
 
-@Preview
+
 @Composable
-fun BotaoMaiorRedondo(name: String = "Usar Scan"){
+fun BotaoMaiorRedondo(navController: NavController,name: String = "Usar Scan"){
     Row(modifier = Modifier
 
         .padding(start = 20.dp, top = 20.dp),
@@ -1097,7 +1028,8 @@ fun BotaoMaiorRedondo(name: String = "Usar Scan"){
             .clip(RoundedCornerShape(30.dp))
             .width(350.dp)
             .height(75.dp)
-            .background(color = Color(0xFF16B4FF)),
+            .background(color = Color(0xFF16B4FF))
+            .clickable { navController.navigate("camera") },
             verticalAlignment = Alignment.CenterVertically,
 
 
@@ -1425,7 +1357,7 @@ fun ChamaAdicionarCarta(navController: NavHostController){
         Topbarbold("Adicionar Carta",navController,"entra-colecao");
         PesquisarBar();
         LinhaPreta();
-        BotaoMaiorRedondo("Usar Scan");
+        BotaoMaiorRedondo(navController,"Usar Scan");
         BotaoMaiorQuadrado("Confirmar");
     }
 }
