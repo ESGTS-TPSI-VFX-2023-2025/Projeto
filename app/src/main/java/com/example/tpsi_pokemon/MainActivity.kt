@@ -18,6 +18,7 @@ import com.example.tpsi_pokemon.ui.theme.TPSI_PokemonTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
+
 class MainActivity : ComponentActivity() {
     private lateinit var controller: LifecycleCameraController
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +46,7 @@ class MainActivity : ComponentActivity() {
             TPSI_PokemonTheme {
                 AppNavigator(controller,context)
             }
+
         }
     }
 
@@ -62,7 +64,6 @@ class MainActivity : ComponentActivity() {
         )
     }
 }
-
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

@@ -26,6 +26,8 @@ import androidx.navigation.compose.rememberNavController
 import cars.com.example.mylogin.CardDisplayScreen
 import cars.com.example.mylogin.RecuperarPassScreen
 import cars.com.example.mylogin.RegistoScreen
+import com.example.tpsi_pokemon.Main
+import com.example.tpsi_pokemon.TelaPrivada
 import com.example.tpsi_pokemon.components.scan.BotaoMaiorQuadrado
 import com.example.tpsi_pokemon.components.scan.CameraScreen
 import com.example.tpsi_pokemon.components.scan.CameraViewModel
@@ -54,7 +56,7 @@ fun AppNavigator(controller: LifecycleCameraController, context: Context) {
 
     NavHost(
         navController = navController,
-        startDestination = "camera"
+        startDestination = "back"
     ) {
         composable("login_screen") {
             LoginScreen(navController)
@@ -369,6 +371,16 @@ fun AppNavigator(controller: LifecycleCameraController, context: Context) {
         composable("entra-Predefinida/{name}") { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: "Nome Padrão"
             ChamaDentroColecaoPredefinida(navController = navController, title = name)
+        }
+
+        composable("back") {
+            Main(navController)
+        }
+        composable("privada") {
+            TelaPrivada(navController)
+        }
+        composable("perfil") {
+            Text("Perfil")
         }
     }
 }
